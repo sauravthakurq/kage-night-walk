@@ -477,6 +477,17 @@ h1,h2,h3{ font-weight:400; margin:0; letter-spacing:-.005em; }
   }
   .nav-links .nav-link span{ height:auto; line-height:1.2; transform:none !important; }
   .nav-links .nav-link .alt{ position:static; margin-top:6px; font-size:10px; color:var(--muted); }
+  /* The links panel leaves the flow to become the slide-in sheet, taking its
+     margin-left:auto with it, so without this the burger sits tucked against
+     the wordmark instead of out at the edge where a thumb reaches. */
+  /* A transform *or* a backdrop-filter makes an element the containing block
+     for its position:fixed descendants. This panel is a child of the bar, so
+     once the bar went sticky and started hiding on scroll the open panel was
+     measured against the bar instead of the viewport: 146px tall, dragged off
+     the top, with the page showing through beside it. Neither may apply while
+     the sheet is open — it covers the frame, so there is nothing left to blur. */
+  .nav.menu-open{ transform:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
+  .nav-burger{ margin-left:auto; }
   .nav-burger.active i:nth-child(1){ top:7px; width:26px; transform:rotate(45deg); }
   .nav-burger.active i:nth-child(2){ top:7px; width:26px; transform:rotate(-45deg); }
   html.nav-open,html.nav-open body{ overflow:hidden; }
@@ -4338,7 +4349,10 @@ function wireNav() {
   window.addEventListener('scroll', () => {
     const y = scrollY;
     nav.classList.toggle('stuck', y > 40);
-    nav.classList.toggle('hide', y > last + 4 && y > vpH() * .8);
+    /* and don't even mark it hidden while the menu is open, or the class lands
+       the moment the sheet closes and the bar blinks away under the thumb */
+    nav.classList.toggle('hide',
+      !nav.classList.contains('menu-open') && y > last + 4 && y > vpH() * .8);
     last = y;
     const a = Math.round(progressFor(y));
     if (a !== activeSec) {
