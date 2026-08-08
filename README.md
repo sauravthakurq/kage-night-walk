@@ -61,7 +61,6 @@ The cinematic scene plates and foreground artwork were generated for this projec
 
 Other single-file experiments in the same vein — no build step, no framework, everything in one HTML document.
 
-- [**A Long Expected Party**](https://mengto.github.io/a-long-expected-party/) — a procedural cinematic short film with a generated score, sound effects, and narration. · [source](https://github.com/MengTo/a-long-expected-party)
 - [**Complete Shelf**](https://mengto.github.io/complete-shelf/) — an original Three.js library of seven interactive clothbound hardcovers. · [source](https://github.com/MengTo/complete-shelf)
 - [**Sketchbook**](https://mengto.com) — a page-flipping sketchbook of Singapore: drag to turn the page, drag the magnifier across it. · [source](https://github.com/MengTo/sketchbook)
 - [**Agent Skills**](https://github.com/MengTo/Skills) — the reusable skill library these pages are built with, including the [falling leaves](https://github.com/MengTo/Skills/tree/main/agent-skills/web-design/falling-leaves) and [pointer trail](https://github.com/MengTo/Skills/tree/main/agent-skills/web-design/pointer-trail-emitter) techniques extracted from Kage.
