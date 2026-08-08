@@ -27,7 +27,13 @@
   --ease-io:cubic-bezier(.65,0,.35,1);
 }
 *,*::before,*::after{box-sizing:border-box}
-html{ -webkit-text-size-adjust:100%; scroll-behavior:auto; }
+/* The foreground cut-outs hang past the right edge on purpose — they are meant
+   to bleed off-frame — but as absolutely positioned children they still grow
+   the page box, measured at 47px past a 390 viewport. `overflow-x:hidden` on
+   the body only stops the user dragging it; the box stays wide and script or a
+   trackpad can still move it. `clip` removes the scrollable area outright and,
+   unlike `hidden`, leaves the vertical axis a normal visible overflow. */
+html{ -webkit-text-size-adjust:100%; scroll-behavior:auto; overflow-x:clip; }
 body{
   margin:0; background:var(--ink); color:var(--bone);
   font-family:'Onest',system-ui,-apple-system,'Helvetica Neue',sans-serif;
@@ -787,6 +793,10 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
      the chips stay four across on a phone and wrap a word to a line. */
   body[data-layout-hero="b"] .chapters{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 14px; }
   body[data-layout-hero="b"] .chip{ flex-direction:row; gap:14px; }
+  /* Same shape of bug: the layout selector outranks the plain single-column
+     rule, so the heading kept a 37% column while its words are set at 30px —
+     "CHAPTERS." alone is wider than that, and it spilled over the paragraph. */
+  body[data-layout-curriculum="b"] .cur-head{ grid-template-columns:1fr; gap:18px; align-items:start; }
   body[data-layout-hero="b"] .chip .num{ font-size:clamp(26px,8vw,36px); }
   body[data-layout-hero="b"] .chip .tx{
     position:static; width:auto; height:auto; overflow:visible; clip:auto;
