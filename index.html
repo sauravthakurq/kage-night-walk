@@ -782,7 +782,10 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
   /* the split collapses and the copy takes the page back */
   body[data-layout-hero="b"] .hero-top{ margin-left:0; max-width:none; }
   body[data-layout-hero="b"] .hero-foot{ width:100%; }
-  body[data-layout-hero="b"] .chapters{ gap:18px 14px; }
+  /* The four-column strip is set on a selector specific enough to survive the
+     plain .chapters override below 820, so it has to be unset here by name or
+     the chips stay four across on a phone and wrap a word to a line. */
+  body[data-layout-hero="b"] .chapters{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 14px; }
   body[data-layout-hero="b"] .chip{ flex-direction:row; gap:14px; }
   body[data-layout-hero="b"] .chip .num{ font-size:clamp(26px,8vw,36px); }
   body[data-layout-hero="b"] .chip .tx{
@@ -818,6 +821,17 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
   body[data-layout-footer="b"] .foot-grid > div:nth-child(n+3){ padding-left:0; border-left:0; }
   body[data-layout-footer="b"] .foot-base{ display:flex; }
   body[data-layout-footer="b"] .foot-base span:last-child{ text-align:left; }
+}
+
+/* On a phone two columns leave the chip's copy about 110px once the numeral
+   and its gutter are taken out, which is narrow enough to wrap a single word
+   to a line. Standing the numeral above the label gives the copy the whole
+   column back. */
+@media (max-width:560px){
+  body[data-layout-hero="b"] .chip{ flex-direction:column; gap:4px; }
+  body[data-layout-hero="b"] .chip .num{ font-size:clamp(22px,7.4vw,30px); }
+  body[data-layout-hero="b"] .chip .tx{ padding-top:0; }
+  body[data-layout-hero="b"] .chip p{ max-width:none; }
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -2198,6 +2212,15 @@ function texBranchCutout(seed) {
 }
 /* ================================================================= 4 · gl */
 const canvas = document.getElementById('gl');
+/* The layout viewport, not the window. On mobile `innerWidth` follows the
+   initial containing block, which can run wider than the visual viewport —
+   measured at 437 against a 390 screen — while `clientWidth` tracks what CSS
+   actually lays out against. Sizing the canvas from `innerWidth` therefore
+   renders a frame wider than the phone shows and drops the right edge of the
+   scene off-screen, which is how the wordmark lost its last letter. Every
+   size, aspect and pointer mapping below goes through these. */
+const vpW = () => document.documentElement.clientWidth  || innerWidth;
+const vpH = () => document.documentElement.clientHeight || innerHeight;
 let renderer, scene, camera, maxAniso = 1;
 const HI = qs('q', COARSE ? 'low' : 'high');
 const LOW = HI === 'low';
@@ -2213,7 +2236,11 @@ function initGL() {
   if (qs('nogl', '0') !== '0' || !window.THREE) throw new Error('webgl disabled');
   renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: !WANT_POST, alpha: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, DPR_CAP));
-  renderer.setSize(innerWidth, innerHeight, false);
+  /* updateStyle stays on: the stylesheet sizes the canvas at 100% of the
+     initial containing block, which is the very box that runs wide on a
+     phone. Writing the CSS size in pixels pins the element to the layout
+     viewport the buffer was built for. */
+  renderer.setSize(vpW(), vpH(), true);
   renderer.outputEncoding = WANT_POST ? THREE.LinearEncoding : THREE.sRGBEncoding;
   renderer.toneMapping = WANT_POST ? THREE.NoToneMapping : THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
@@ -2229,7 +2256,7 @@ function initGL() {
      follow it down. */
   scene.fog = new THREE.FogExp2(0x050a0e, 0.0168);
   scene.background = new THREE.Color(0x060a0d);
-  camera = new THREE.PerspectiveCamera(36, innerWidth / innerHeight, .35, 220);
+  camera = new THREE.PerspectiveCamera(36, vpW() / vpH(), .35, 220);
   scene.add(camera);
 }
 
@@ -3031,7 +3058,7 @@ function buildAtmosphere() {
   g.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
   const emb = new THREE.Points(g, new THREE.ShaderMaterial({
     uniforms: { uT: WORLD.uT, uTex: { value: tx(texGlow('rgba(255,190,140,1)', 'rgba(255,120,60,.35)')) },
-      uSize: { value: innerHeight * .5 } },
+      uSize: { value: vpH() * .5 } },
     transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
     vertexShader:
       'attribute float aSeed; uniform float uT; uniform float uSize; varying float vA;\n' +
@@ -3213,7 +3240,7 @@ function buildWisps() {
   g.setAttribute('aA', new THREE.BufferAttribute(new Float32Array(N), 1));
   g.setAttribute('aS', new THREE.BufferAttribute(new Float32Array(N), 1));
   const pts = new THREE.Points(g, new THREE.ShaderMaterial({
-    uniforms: { uTex: { value: tx(texWisp()) }, uPx: { value: innerHeight } },
+    uniforms: { uTex: { value: tx(texWisp()) }, uPx: { value: vpH() } },
     transparent: true, blending: THREE.AdditiveBlending,
     depthWrite: false, depthTest: false, fog: false,
     vertexShader:
@@ -3976,14 +4003,14 @@ let curveP, curveT, tmpCam;
 function buildRig() {
   curveP = new THREE.CatmullRomCurve3(CAM.map(c => new THREE.Vector3(c.p[0], c.p[1], c.p[2])), false, 'catmullrom', .42);
   curveT = new THREE.CatmullRomCurve3(CAM.map(c => new THREE.Vector3(c.t[0], c.t[1], c.t[2])), false, 'catmullrom', .42);
-  tmpCam = new THREE.PerspectiveCamera(CAM[0].fov, innerWidth / innerHeight, .35, 220);
+  tmpCam = new THREE.PerspectiveCamera(CAM[0].fov, vpW() / vpH(), .35, 220);
   camera.layers.enable(1); camera.layers.enable(2);
 }
 const _p = new THREE.Vector3(), _t = new THREE.Vector3(), _d = new THREE.Vector3();
 /* Every waypoint is composed for a wide frame. On a tall one the same
    numbers crop the gate in half, so the rig steps back along its own view
    axis and opens up a little instead of letting the sides fall away. */
-function aspectFix() { return clamp((1.62 - innerWidth / innerHeight) / 1.05, 0, 1); }
+function aspectFix() { return clamp((1.62 - vpW() / vpH()) / 1.05, 0, 1); }
 function fitAspect(p, t, fov) {
   const nf = aspectFix();
   if (nf <= 0) return fov;
@@ -4019,11 +4046,11 @@ function applyCamera() {
 const SECS = [].slice.call(document.querySelectorAll('[data-cam]'));
 let anchors = [], maxScroll = 1, activeSec = 0;
 function measure() {
-  maxScroll = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+  maxScroll = Math.max(1, document.documentElement.scrollHeight - vpH());
   anchors = SECS.map((el, i) => {
     if (i === 0) return 0;
     if (i === SECS.length - 1) return maxScroll;
-    return clamp(el.offsetTop + el.offsetHeight * .5 - innerHeight * .5, 0, maxScroll);
+    return clamp(el.offsetTop + el.offsetHeight * .5 - vpH() * .5, 0, maxScroll);
   });
   for (let i = 1; i < anchors.length; i++) anchors[i] = Math.max(anchors[i], anchors[i - 1] + 1);
 }
@@ -4041,7 +4068,7 @@ function layoutWord() {
   const hp = new THREE.Vector3(c.p[0], c.p[1], c.p[2]);
   const ht = new THREE.Vector3(c.t[0], c.t[1], c.t[2]);
   tmpCam.fov = fitAspect(hp, ht, c.fov);
-  tmpCam.aspect = innerWidth / innerHeight;
+  tmpCam.aspect = vpW() / vpH();
   tmpCam.position.copy(hp);
   tmpCam.lookAt(ht);
   tmpCam.updateProjectionMatrix(); tmpCam.updateMatrixWorld(true);
@@ -4050,10 +4077,16 @@ function layoutWord() {
     return tmpCam.position.clone().addScaledVector(v, (WORD_Z - tmpCam.position.z) / v.z);
   };
   const L = hit(-1, 0), R = hit(1, 0);
-  const narrow = innerWidth < 760;
-  /* four wide-tracked letters reach the frame edge exactly; pushing past it,
-     as the six-letter word could afford to, decapitates the K and the E */
-  const fill = narrow ? 1.06 : 1.00;
+  /* Judge the frame by its shape, not its width. What forces the word up and
+     in is a *tall* frame, and a 768-wide tablet held upright is as tall as a
+     phone — on a width test it took the desktop baseline and sat below the
+     fold with only the top of the G showing. */
+  const narrow = vpW() / vpH() < 1.05;
+  /* Four wide-tracked letters reach the frame edge exactly; pushing past it,
+     as the six-letter word could afford to, decapitates the K and the E. The
+     narrow branch is held a little inside the edge because a phone frame has
+     no gutter to lose the tracking that trails the final letter into. */
+  const fill = narrow ? .96 : 1.00;
   const s = (R.x - L.x) * fill / WORD.ink.w;
   /* on a tall frame the mounds sit near mid-height, so the baseline has to
      ride above them or the whole word disappears into the grass */
@@ -4224,7 +4257,7 @@ function wireHeroExit() {
   ].filter(o => o.el);
   let on = false;
   const apply = () => {
-    const t = clamp(scrollY / Math.max(1, innerHeight * .58), 0, 1);
+    const t = clamp(scrollY / Math.max(1, vpH() * .58), 0, 1);
     if (t <= 0) {
       if (!on) return;
       seq.forEach(o => {
@@ -4280,12 +4313,12 @@ function wireNav() {
   burger.setAttribute('aria-controls', 'navlinks');
   burger.setAttribute('aria-expanded', 'false');
   burger.addEventListener('click', () => {
-    if (innerWidth > 820) return;
+    if (vpW() > 820) return;
     setMenu(!nav.classList.contains('menu-open'));
   });
   links.forEach(link => link.addEventListener('click', closeMenu));
   addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
-  addEventListener('resize', () => { if (innerWidth > 820) closeMenu(); }, { passive:true });
+  addEventListener('resize', () => { if (vpW() > 820) closeMenu(); }, { passive:true });
   /* Which chapter each link actually points at, read off its href. The old
      rule was positional — link i lit for section i+1 — which silently assumed
      one link per section in matching order. With five links over four chapters
@@ -4295,7 +4328,7 @@ function wireNav() {
   window.addEventListener('scroll', () => {
     const y = scrollY;
     nav.classList.toggle('stuck', y > 40);
-    nav.classList.toggle('hide', y > last + 4 && y > innerHeight * .8);
+    nav.classList.toggle('hide', y > last + 4 && y > vpH() * .8);
     last = y;
     const a = Math.round(progressFor(y));
     if (a !== activeSec) {
@@ -4327,11 +4360,11 @@ function wireFocus() {
 function wireCursor() {
   const dot = $('#cursor');
   if (COARSE) { dot.style.display = 'none'; return; }
-  let x = innerWidth / 2, y = innerHeight / 2, tx2 = x, ty = y;
+  let x = vpW() / 2, y = vpH() / 2, tx2 = x, ty = y;
   addEventListener('pointermove', e => {
     tx2 = e.clientX; ty = e.clientY;
-    RIG.tmx = (e.clientX / innerWidth) * 2 - 1;
-    RIG.tmy = -((e.clientY / innerHeight) * 2 - 1);
+    RIG.tmx = (e.clientX / vpW()) * 2 - 1;
+    RIG.tmy = -((e.clientY / vpH()) * 2 - 1);
   }, { passive: true });
   $$('[data-cursor]').forEach(el => {
     el.addEventListener('mouseenter', () => dot.classList.add('act'));
@@ -4401,8 +4434,8 @@ function clearRegion(rt) {
     renderer.setRenderTarget(rt);
   } else {
     renderer.setScissorTest(false);
-    renderer.setViewport(0, 0, innerWidth, innerHeight);
-    renderer.setScissor(0, 0, innerWidth, innerHeight);
+    renderer.setViewport(0, 0, vpW(), vpH());
+    renderer.setScissor(0, 0, vpW(), vpH());
   }
 }
 function cardBuffer(C, w, h) {
@@ -4451,13 +4484,13 @@ function renderCards(rt) {
   let drew = false;
   for (let i = 0; i < CARDS.length; i++) {
     const C = CARDS[i], r = C.el.getBoundingClientRect();
-    if (r.bottom < -40 || r.top > innerHeight + 40 || r.width < 4) continue;
+    if (r.bottom < -40 || r.top > vpH() + 40 || r.width < 4) continue;
     if (cardAlpha(C.el) < .995) continue;
     /* a card carrying cloth has no background left of its own, so the blit
        would show through the fabric's rounded corners and past its edges */
     if (C.el.classList.contains('on-cloth')) continue;
     if (!WANT_POST) {                              /* debug path: straight in */
-      setRegion(rt, r.left, innerHeight - r.bottom, r.width, r.height);
+      setRegion(rt, r.left, vpH() - r.bottom, r.width, r.height);
       renderer.clear(true, true, false);
       aimCard(C, r.width / r.height);
       renderer.render(scene, C.cam);
@@ -4472,7 +4505,7 @@ function renderCards(rt) {
       renderer.render(scene, C.cam);
       C.dirty = false;
     }
-    setRegion(rt, r.left, innerHeight - r.bottom, r.width, r.height);
+    setRegion(rt, r.left, vpH() - r.bottom, r.width, r.height);
     POST.up.blending = THREE.NoBlending;
     POST.up.uniforms.uAmt.value = 1;
     POST.up.uniforms.tS.value = buf.texture;
@@ -4487,9 +4520,9 @@ let running = false, tPrev = 0, clock = 0, fadeIn = 0;
 const INTRO = { t0: 0 };
 
 function resize() {
-  const w = innerWidth, h = innerHeight;
+  const w = vpW(), h = vpH();
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, DPR_CAP) * PERF.scale);
-  renderer.setSize(w, h, false);
+  renderer.setSize(w, h, true);
   camera.aspect = w / h; camera.updateProjectionMatrix();
   const pw = renderer.domElement.width, ph = renderer.domElement.height;
   if (WANT_POST && POST.scene) {
