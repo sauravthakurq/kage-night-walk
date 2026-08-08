@@ -27,13 +27,17 @@
   --ease-io:cubic-bezier(.65,0,.35,1);
 }
 *,*::before,*::after{box-sizing:border-box}
-html{ -webkit-text-size-adjust:100%; scroll-behavior:auto; }
+/* The horizontal lock lives on the root and only on the root. Put it on the
+   body as well and the body stops propagating its overflow to the viewport and
+   starts applying it itself — and `hidden` on one axis coerces `visible` on the
+   other to `auto`, which makes the body a second scroll container inside the
+   page. One declaration here; none below. */
+html{ -webkit-text-size-adjust:100%; scroll-behavior:auto; overflow-x:hidden; }
 body{
   margin:0; background:var(--ink); color:var(--bone);
   font-family:'Onest',system-ui,-apple-system,'Helvetica Neue',sans-serif;
   font-weight:300; font-size:16px; line-height:1.6;
   -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-  overflow-x:hidden;
 }
 body.is-locked{ overflow:hidden; height:100vh; }
 ::selection{ background:var(--vermilion); color:#fff; }
