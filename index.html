@@ -119,13 +119,24 @@ h1,h2,h3{ font-weight:400; margin:0; letter-spacing:-.005em; }
 .nav{
   position:fixed; top:0; left:0; right:0; height:var(--nav-h); z-index:50;
   display:flex; align-items:center; gap:24px; padding:0 var(--pad);
-  transition:transform .55s var(--ease), background .5s linear, backdrop-filter .5s linear;
+  transition:transform .55s var(--ease);
 }
+/* The sticky wash sits on its own layer rather than on the bar. A
+   backdrop-filter promotes its element to the containing block for any
+   position:fixed descendant, and the bar holds the mobile menu sheet — put the
+   blur here and the sheet was measured against an 84px bar instead of the
+   frame, for as long as the blur took to fade. */
+.nav::before{
+  content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background:rgba(5,7,10,.62);
+  backdrop-filter:blur(14px) saturate(1.1); -webkit-backdrop-filter:blur(14px) saturate(1.1);
+  opacity:0; transition:opacity .5s linear;
+}
+.nav.stuck::before{ opacity:1; }
 .nav::after{
   content:''; position:absolute; left:var(--pad); right:var(--pad); bottom:0; height:1px;
   background:var(--line-soft); opacity:0; transition:opacity .5s;
 }
-.nav.stuck{ background:rgba(5,7,10,.62); backdrop-filter:blur(14px) saturate(1.1); -webkit-backdrop-filter:blur(14px) saturate(1.1); }
 .nav.stuck::after{ opacity:1; }
 .nav.hide{ transform:translate3d(0,-101%,0); }
 .brand{ display:flex; align-items:center; gap:11px; flex:0 0 auto; }
@@ -486,7 +497,10 @@ h1,h2,h3{ font-weight:400; margin:0; letter-spacing:-.005em; }
      measured against the bar instead of the viewport: 146px tall, dragged off
      the top, with the page showing through beside it. Neither may apply while
      the sheet is open — it covers the frame, so there is nothing left to blur. */
-  .nav.menu-open{ transform:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
+  /* A hide transform still promotes the bar, so drop it the instant the sheet
+     opens. Without transition:none it eases out over .55s and the sheet spends
+     that whole time measured against the bar. */
+  .nav.menu-open{ transform:none; transition:none; }
   .nav-burger{ margin-left:auto; }
   .nav-burger.active i:nth-child(1){ top:7px; width:26px; transform:rotate(45deg); }
   .nav-burger.active i:nth-child(2){ top:7px; width:26px; transform:rotate(-45deg); }
@@ -4326,6 +4340,9 @@ function wireNav() {
     document.documentElement.classList.remove('nav-open');
   };
   const setMenu = open => {
+    /* clear the scroll-hide before the sheet opens: leaving it set would ease
+       the bar back down on close, promoting it again under the outgoing sheet */
+    if (open) nav.classList.remove('hide');
     nav.classList.toggle('menu-open', open);
     burger.classList.toggle('active', open);
     burger.setAttribute('aria-expanded', String(open));
