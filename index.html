@@ -27,17 +27,13 @@
   --ease-io:cubic-bezier(.65,0,.35,1);
 }
 *,*::before,*::after{box-sizing:border-box}
-/* The horizontal lock lives on the root and only on the root. Put it on the
-   body as well and the body stops propagating its overflow to the viewport and
-   starts applying it itself — and `hidden` on one axis coerces `visible` on the
-   other to `auto`, which makes the body a second scroll container inside the
-   page. One declaration here; none below. */
-html{ -webkit-text-size-adjust:100%; scroll-behavior:auto; overflow-x:hidden; }
+html{ -webkit-text-size-adjust:100%; scroll-behavior:auto; }
 body{
   margin:0; background:var(--ink); color:var(--bone);
   font-family:'Onest',system-ui,-apple-system,'Helvetica Neue',sans-serif;
   font-weight:300; font-size:16px; line-height:1.6;
   -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
 }
 body.is-locked{ overflow:hidden; height:100vh; }
 ::selection{ background:var(--vermilion); color:#fff; }
@@ -115,7 +111,12 @@ h1,h2,h3{ font-weight:400; margin:0; letter-spacing:-.005em; }
 
 /* ============================================================= nav */
 .nav{
-  position:fixed; top:0; left:0; right:0; height:var(--nav-h); z-index:50;
+  /* Width comes from --vw, not from right:0. A fixed element resolves its
+     inset against the initial containing block, and the page's own horizontal
+     overflow makes that block wider than the screen — 437 against a 390 phone,
+     860 against a 768 tablet — which carried the burger off the right edge.
+     --vw is the layout viewport, written on every resize. */
+  position:fixed; top:0; left:0; width:var(--vw, 100%); height:var(--nav-h); z-index:50;
   display:flex; align-items:center; gap:24px; padding:0 var(--pad);
   transition:transform .55s var(--ease);
 }
@@ -670,14 +671,7 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
    foreground treatment. */
 .fg{
   position:absolute; inset:0; z-index:3;
-  pointer-events:none;
-  /* The cut-outs are placed to hang off the left and right of the frame, and as
-     absolutely positioned children they grew the page box with them — 194px past
-     a 1440 frame, 47px past a 390 one. Clip the horizontal axis only: `clip`
-     pairs with `visible` without coercing it, so nothing becomes a scroll
-     container and the art still bleeds freely above and below, which is the part
-     that is actually seen. */
-  overflow-x:clip; overflow-y:visible;
+  overflow:visible; pointer-events:none;
 }
 /* the host for whichever chapter currently owns the near plane — no box of
    its own, since every stage it holds is position:fixed to the viewport */
@@ -4567,6 +4561,7 @@ const INTRO = { t0: 0 };
 
 function resize() {
   const w = vpW(), h = vpH();
+  document.documentElement.style.setProperty('--vw', w + 'px');
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, DPR_CAP) * PERF.scale);
   renderer.setSize(w, h, true);
   camera.aspect = w / h; camera.updateProjectionMatrix();
