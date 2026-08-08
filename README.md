@@ -4,20 +4,20 @@ An interactive five-chapter night walk through a Kyoto mountain temple, rendered
 
 [**View the live project**](https://mengto.github.io/kage/) · [**View the source**](https://github.com/MengTo/kage) · [**Read the build prompt**](PROMPT.md)
 
-![Kage preview](assets/kage-preview.jpg)
+![Kage preview](assets/kage-preview.webp)
 
 ## What it does
 
 - Moves a live WebGL camera through a mountain temple as the page scrolls.
 - Combines procedural architecture, lantern light, fog, rain, drifting leaves, a vermilion moon, and a restrained bloom pipeline.
-- Layers editorial typography, generated scene plates, and foreground PNG elements over the 3D world, with section-specific fade and blur transitions.
+- Layers editorial typography, generated scene plates, and alpha-preserving WebP foreground elements over the 3D world, with section-specific fade and blur transitions.
 - Includes chapter navigation, a responsive mobile layout, reduced-motion behavior, and a custom cursor for precise pointer devices.
 
 ## How it is made
 
 Kage is a deliberately small static site. `index.html` contains the document structure, CSS, procedural scene construction, scroll choreography, and interaction logic. A vendored Three.js r149 build provides WebGL rendering without a package manager or build step.
 
-The temple, torii, lanterns, moon, terrain, rain, leaves, fog, and post-processing are constructed at runtime. Generated scene plates and foreground cutouts sit in normal HTML layers, giving the page its collage-like depth while keeping the camera path and lighting live.
+The temple, torii, lanterns, moon, terrain, rain, leaves, fog, and post-processing are constructed at runtime. Optimized WebP scene plates and foreground cutouts sit in normal HTML layers, giving the page its collage-like depth while keeping the camera path and lighting live.
 
 ## Build or remix it
 
@@ -43,7 +43,7 @@ kage/
 ├── PROMPT.md
 ├── README.md
 ├── assets/
-│   └── kage-preview.jpg
+│   └── kage-preview.webp
 └── secret-pathways-assets/
     ├── fonts.css
     ├── three.min.js

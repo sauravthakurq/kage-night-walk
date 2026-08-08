@@ -14,7 +14,7 @@ Create a single-page, cinematic WebGL experience called **Kage**: a five-chapter
 
 - Structure the page as a hero, temple threshold, still gardens, sacred craft chapters, afterlight closing, and manifesto footer.
 - Use oversized left-aligned English headings, large vertical Japanese display type, small technical labels, chapter numbers, fine rules, and generous negative space.
-- Layer generated cinematic stills into editorial cards and use opaque PNG cutouts of grass, maple branches, sakura, stones, walls, ruins, bushes, hills, pines, and lanterns at the bottom of the active viewport.
+- Layer generated cinematic stills into editorial cards and use alpha-preserving WebP cutouts of grass, maple branches, sakura, stones, walls, ruins, bushes, hills, pines, and lanterns at the bottom of the active viewport.
 - Foreground layers should arrive at full visual opacity, remain pinned while their section is active, then fade and blur away during the handoff.
 - Center any play icon within the image frame itself, excluding the caption area.
 
