@@ -27,13 +27,7 @@
   --ease-io:cubic-bezier(.65,0,.35,1);
 }
 *,*::before,*::after{box-sizing:border-box}
-/* The foreground cut-outs hang past the right edge on purpose — they are meant
-   to bleed off-frame — but as absolutely positioned children they still grow
-   the page box, measured at 47px past a 390 viewport. `overflow-x:hidden` on
-   the body only stops the user dragging it; the box stays wide and script or a
-   trackpad can still move it. `clip` removes the scrollable area outright and,
-   unlike `hidden`, leaves the vertical axis a normal visible overflow. */
-html{ -webkit-text-size-adjust:100%; scroll-behavior:auto; overflow-x:clip; }
+html{ -webkit-text-size-adjust:100%; scroll-behavior:auto; }
 body{
   margin:0; background:var(--ink); color:var(--bone);
   font-family:'Onest',system-ui,-apple-system,'Helvetica Neue',sans-serif;
@@ -672,7 +666,14 @@ body[data-layout-footer="b"] .foot-base span:last-child{ text-align:right; }
    foreground treatment. */
 .fg{
   position:absolute; inset:0; z-index:3;
-  overflow:visible; pointer-events:none;
+  pointer-events:none;
+  /* The cut-outs are placed to hang off the left and right of the frame, and as
+     absolutely positioned children they grew the page box with them — 194px past
+     a 1440 frame, 47px past a 390 one. Clip the horizontal axis only: `clip`
+     pairs with `visible` without coercing it, so nothing becomes a scroll
+     container and the art still bleeds freely above and below, which is the part
+     that is actually seen. */
+  overflow-x:clip; overflow-y:visible;
 }
 /* the host for whichever chapter currently owns the near plane — no box of
    its own, since every stage it holds is position:fixed to the viewport */
