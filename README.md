@@ -1,8 +1,14 @@
 # Kage
 
+> Deployed and maintained by **[Saurav Thakur](https://sauravthakurx.vercel.app/)** — [LinkedIn](https://linkedin.com/in/sauravthakurq) · [GitHub](https://github.com/sauravthakurq) · [YouTube](https://www.youtube.com/@SauravThakurx) · [X](https://x.com/SauravThakurx)
+>
+> **Live site:** https://design-kage.vercel.app
+>
+> Original project by [Meng To](https://github.com/MengTo). This is a fork; all original authorship and copyright remain with the original author.
+
 An interactive five-chapter night walk through a Kyoto mountain temple, rendered live in Three.js and layered with cinematic generated imagery.
 
-[**View the live project**](https://mengto.github.io/kage/) · [**View the source**](https://github.com/MengTo/kage) · [**Read the build prompt**](PROMPT.md)
+[**View the live project**](https://design-kage.vercel.app) · [**View the source**](https://github.com/sauravthakurq/kage-night-walk) · [**Read the build prompt**](PROMPT.md)
 
 ![Kage preview](assets/kage-preview.webp)
 
@@ -61,10 +67,18 @@ The cinematic scene plates and foreground artwork were generated for this projec
 
 Other single-file experiments in the same vein — no build step, no framework, everything in one HTML document.
 
-- [**Complete Shelf**](https://mengto.github.io/complete-shelf/) — an original Three.js library of seven interactive clothbound hardcovers. · [source](https://github.com/MengTo/complete-shelf)
-- [**Sketchbook**](https://mengto.com) — a page-flipping sketchbook of Singapore: drag to turn the page, drag the magnifier across it. · [source](https://github.com/MengTo/sketchbook)
-- [**Agent Skills**](https://github.com/MengTo/Skills) — the reusable skill library these pages are built with, including the [falling leaves](https://github.com/MengTo/Skills/tree/main/agent-skills/web-design/falling-leaves) and [pointer trail](https://github.com/MengTo/Skills/tree/main/agent-skills/web-design/pointer-trail-emitter) techniques extracted from Kage.
+- [**Complete Shelf**](https://complete-shelf-three.vercel.app) — an original Three.js library of seven interactive clothbound hardcovers. · [source](https://github.com/sauravthakurq/threejs-book-shelf)
+- [**Sketchbook**](https://sketchbook-gold-delta.vercel.app) — a page-flipping sketchbook of Singapore: drag to turn the page, drag the magnifier across it. · [source](https://github.com/sauravthakurq/singapore-sketchbook)
+- [**Agent Skills**](https://github.com/sauravthakurq/ai-agent-skills) — the reusable skill library these pages are built with, including the [falling leaves](https://github.com/sauravthakurq/ai-agent-skills/tree/main/agent-skills/web-design/falling-leaves) and [pointer trail](https://github.com/sauravthakurq/ai-agent-skills/tree/main/agent-skills/web-design/pointer-trail-emitter) techniques extracted from Kage.
 
 ## License
 
 No license is currently granted for reuse or redistribution of the original Kage code or artwork. The third-party Three.js runtime remains covered by its included MIT license notice.
+
+## Connect
+
+- 💼 **LinkedIn** — https://linkedin.com/in/sauravthakurq
+- 🌍 **Portfolio** — https://sauravthakurx.vercel.app/
+- 💻 **GitHub** — https://github.com/sauravthakurq
+- ▶️ **YouTube** — https://www.youtube.com/@SauravThakurx
+- 𝕏 **X (Twitter)** — https://x.com/SauravThakurx
